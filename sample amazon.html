@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sample Amazon Home</title>
+  <style>
+        :root {
+      --amazon-blue: #131921;
+      --amazon-light-blue: #232f3e;
+      --amazon-yellow: #febd69;
+      --amazon-orange: #f3a847;
+      --bg: #eaeded;
+      --text: #111;
+      --muted: #555;
+      --card: #fff;
+      --link: #007185;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: var(--text); background: var(--bg); }
+
+    /* Header */
+    .topbar {
+      background: var(--amazon-blue);
+      color: #fff;
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .logo mark {
+      background: transparent;
+      color: var(--amazon-yellow);
+      font-weight: 700;
+      font-style: normal;
+    }
+    .logo .sub {
+      font-size: 12px;
+      color: #ddd;
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .search select, .search input {
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .search button {
+      background: var(--amazon-yellow);
+      border: none;
+      padding: 0 14px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+    }
+    .search button:hover { background: #ffcf7a; }
+
+    .account, .orders, .cart {
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .account span, .orders span, .cart span { display: block; }
+    .cart {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    /* Nav */
+    .nav {
+      background: var(--amazon-light-blue);
+      color: #fff;
+      display: flex;
+      gap: 16px;
+      padding: 8px 16px;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+      padding: 6px 8px;
+      border-radius: 3px;
+    }
+    .nav a:hover { background: rgba(255,255,255,0.1); }
+
+    /* Hero Banner */
+    .hero {
+      position: relative;
+      background: linear-gradient(90deg, #f6f7f9, #e1e7ef);
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .hero p {
+      margin: 8px 0 16px;
+      color: var(--muted);
+    }
+    .hero .cta {
+      background: #fff;
+      border: 1px solid #d5d9d9;
+      border-radius: 4px;
+      padding: 10px 16px;
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .hero .cta:hover { background: #f7fafa; }
+
+    /* Content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Promo rows */
+    .promo-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: -80px; /* overlaps hero for Amazon-like feel */
+      margin-bottom: 16px;
+    }
+    .promo-card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      min-height: 200px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .promo-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .promo-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    .promo-card a {
+      margin-top: 10px;
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    /* Product grid */
+    .section-title {
+      font-size: 20px;
+      margin: 24px 0 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      overflow: hidden;
+    }
+    .card .thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #f8f8f8;
+    }
+    .card .info {
+      padding: 12px 12px 0;
+    }
+    .card .title {
+      font-size: 14px;
+      margin: 0 0 6px;
+      line-height: 1.35;
+    }
+    .card .rating {
+      color: #ffa41c;
+      font-size: 13px;
+    }
+    .card .price {
+      padding: 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+    .card .actions {
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      background: var(--amazon-yellow);
+      border: none;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #ffd814;
+    }
+    .btn:hover { filter: brightness(1.05); }
+
+    /* Footer */
+    .back-to-top {
+      background: #37475a;
+      color: #fff;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+    }
+    .footer {
+      background:#2f2e40;
+      color: #ddd;
+      padding: 24px 16px;
+    }
+    .footer .legal {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      margin-top: 16px;
+      padding-top: 12px;
+      text-align: center;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    /* Responsive */
+    @media (max-width:1080px) {
+      .grid { grid-template-columns: repeat(5, 1fr); }
+      .promo-row { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 1200px) {
+      .grid { grid-template-columns: repeat(4, 1fr); }
+      .promo-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .topbar { grid-template-columns: auto 1fr auto; }
+      .orders { display: none; }
+      .search { grid-template-columns: 100px 1fr auto; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+      .promo-row { grid-template-columns: repeat(2, 1fr); margin-top: -40px; }
+    }
+    @media (max-width: 600px) {
+      .search { grid-template-columns: 1fr auto; }
+      .search select { display: none; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .footer .cols { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+    <!-- Header -->
+  <header class="topbar">
+    <a href="#" class="logo" aria-label="Amazon Home">
+      <div>
+        <strong><mark>amazon</mark>.in</strong>
+        <div class="sub">Deliver to ABES Engineering college Ghaziabad U.P</div>
+      </div>
+    </a>
+
+    <form class="search" role="search" aria-label="Search">
+      <select aria-label="Category">
+        <option selected>All</option>
+        <option>All Departments</option>
+        <option>Arts & Crafts</option>
+        <option>Automotive</option>
+        <option>Baby</option>
+        <option>Beauty & Personal Care</option>
+        <option>Computers & mobiles</option>
+        <option>Books</option>
+          </select>
+      <input type="search" placeholder="Search Amazon" aria-label="Search Amazon" />
+      <button type="submit" aria-label="Search">🔍</button>
+    </form>
+
+    <a href="#" class="account">
+      <span>Hello, Om</span>
+      <strong>Account & Lists</strong>
+    </a>
+
+    <a href="#" class="cart" aria-label="Cart">
+      🛒 <span>Cart</span>
+    </a>
+  </header>
+
+    <!-- Nav -->
+  <nav class="nav" aria-label="Primary">
+    <a href="#">All</a>
+    <a href="#">Today's Deals</a>
+    <a href="https://www.primevideo.com/offers/nonprimehomepage/ref=dv_web_force_root">Prime Video</a>
+    <a href="https://www.amazon.in/minitv">Amazon miniTV</a>
+    <a href="#">Electronics</a>
+    <a href="#">Books</a>
+    <a href="#">Fashion</a>
+    <a href="#">Home & Kitchen</a>
+    <a href="#">Sell</a>
+    <a href="#">Customer Service</a>
+  </nav>
+  
+  <!-- Hero -->
+  <section class="hero">
+    <div>
+      <h1>Welcome to Amazon.in</h1>
+      <p>Shop deals across mobiles, electronics, fashion, and more.</p>
+      <a href="#" class="cta">Explore today's deals</a>
+    </div>
+  </section>
+
+  <!-- Promo Row -->
+  <div class="container">
+    <section class="promo-row" aria-label="Top categories">
+      <article class="promo-card">
+        <h3>Upgrade your home</h3>
+        <img src="https://picsum.photos/seed/home/400/240" alt="Home essentials" />
+        <a href="#">Shop now</a>
+      </article>
+      <article class="promo-card">
+        <h3>Mobiles & accessories</h3>
+        <img src="https://picsum.photos/seed/mobiles/400/240" alt="Mobiles and accessories" />
+        <a href="#">See more</a>
+      </article>
+      <article class="promo-card">
+        <h3>Fashion picks</h3>
+        <img src="https://thumbs.dreamstime.com/b/fashion-clothes-boutique-website-vector-illustration-online-shopping-landing-page-design-typographic-background-silhouettes-164422579.jpg" alt="Fashion collection" />
+        <a href="#">Discover fashion</a>
+      </article>
+      <article class="promo-card">
+        <h3>Electronics deals</h3>
+        <img src="https://picsum.photos/seed/electronics/400/240" alt="Electronics deals" />
+        <a href="#">Browse deals</a>
+      </article>
+    </section>
+
+    <!-- Product Grid -->
+    <h2 class="section-title">Featured products</h2>
+    <section class="grid" aria-label="Featured products">
+      <!-- Card 1 -->
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/61nB9DwIXkL._SX679_.jpg" alt="Smartphone" />
+        <div class="info">
+          <h3 class="title">realme 15T 5G Smartphone 7000mAh Battery 6.57 inch 120Hz AMOLED Display 128GB ROM 8GB RAM 60W Fast Charge</h3>
+          <div class="rating">★★★★★ 4.6</div>
+        </div>
+        <div class="price">₹14,999</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/71-tA1jB0rL._SX679_.jpg" alt="Laptop" />
+        <div class="info">
+          <h3 class="title">Dell 15, AMD Ryzen 7-7730U, 16GB DDR4, 512GB SSD, FHD 15.6"/39.6 cm, Windows 11, Platinum Silver, 1.63 Kg, 120Hz 250 nits, AMD Radeon Graphics</h3>
+          <div class="rating">★★★★☆ 4.4</div>
+        </div>
+        <div class="price">₹49,990</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/51rpbVmi9XL._SX522_.jpg" alt="Wireless Headphones" />
+        <div class="info">
+          <h3 class="title">Sony WH-CH720N Active Noise Cancellation Wireless Bluetooth Over Ear Headphones with Mic, Adaptive Sound Control, Quick Charge, Up to 35Hrs Battery, Customized EQ- Black</h3>
+          <div class="rating">★★★★☆ 4.4</div>
+        </div>
+        <div class="price">₹6,499</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/81QdLDL1iSL._SX522_.jpg" alt="Smartwatch" />
+        <div class="info">
+          <h3 class="title">Titan Crest 1.43” AMOLED Smart Watch with BT Calling, AI Morning Briefs, Health Tracking, 100+ Sports Modes, Smartwatch for Men and Women</h3>
+          <div class="rating">★★★★☆ 4.2</div>
+        </div>
+        <div class="price">₹3,999</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/71R8fW+54hL._SX679_.jpg" alt="Bluetooth Speaker" />
+        <div class="info">
+          <h3 class="title">Tribit StormBox Blast 140W Peak Bluetooth Party Speaker,Portable Speaker 90W Loud Stereo Sound with XBass LED Light,30H Playtime for Outdoor</h3>
+          <div class="rating">★★★★★ 4.6</div>
+        </div>
+        <div class="price">₹16,999</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- Another row -->
+    <h2 class="section-title">Trending in fashion</h2>
+    <section class="grid" aria-label="Trending fashion">
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/71XvaibpwsL._SY695_.jpg" alt="Running Shoes" />
+        <div class="info">
+          <h3 class="title">Men's Running Shoes</h3>
+          <div class="rating">★★★★☆ 4.1</div>
+        </div>
+        <div class="price">₹1,799</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="https://www.randysun.com/cdn/shop/files/WJC001.jpg?v=1700199792" alt="Jacket" />
+        <div class="info">
+          <h3 class="title">Lightweight Windbreaker Jacket</h3>
+          <div class="rating">★★★★☆ 4.0</div>
+        </div>
+        <div class="price">₹2,299</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/81O3NdW-8hL._SX385_.jpg" alt="T-Shirt" />
+        <div class="info">
+          <h3 class="title">Cotton Graphic T-Shirt</h3>
+          <div class="rating">★★★☆☆ 3.8</div>
+        </div>
+        <div class="price">₹499</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/61Cyyzlq5CL._SX679_.jpg" alt="Backpack" />
+        <div class="info">
+          <h3 class="title">Water-resistant Backpack, 28L</h3>
+          <div class="rating">★★★★☆ 4.2</div>
+        </div>
+        <div class="price">₹7,499</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="https://m.media-amazon.com/images/I/61ChXeifEeL._SX679_.jpg" alt="Sunglasses" />
+        <div class="info">
+          <h3 class="title">UV400 Sunglasses Oakley Polarized Sports Sunglasses</h3>
+          <div class="rating">★★★★☆ 4.3</div>
+        </div>
+        <div class="price">₹2,199</div>
+        <div class="actions">
+          <button class="btn">Add to Cart</button>
+          <button class="btn secondary">Buy Now</button>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <div class="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+    Back to top
+  </div>
+  <footer class="footer" aria-label="Footer">
+    <div class="cols">
+    </div>
+    <div class="legal">
+      © 2026 Sample Amazon Home (Educational). All product names are placeholders.
+      <br />Privacy Policy • Terms of Use • Contact
+    </div>
+  </footer>
+</body>
+</html>
