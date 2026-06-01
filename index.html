@@ -48,6 +48,24 @@
       font-size: 12px;
       color: #ddd;
     }
+    .dark-mode {
+  background: #121212;
+  color: white;
+}
+
+.dark-mode .card,
+.dark-mode .promo-card,
+.dark-mode .hero {
+  background: #1f1f1f;
+  color: white;
+}
+
+.dark-mode .title,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode p {
+  color: white;
+}
 
     .search {
       display: grid;
@@ -258,6 +276,57 @@
       font-size: 12px;
       color: #ccc;
     }
+    .cart-modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:1000;
+}
+
+.cart-content{
+  background:#fff;
+  width:90%;
+  max-width:500px;
+  margin:50px auto;
+  padding:20px;
+  border-radius:10px;
+  position:relative;
+}
+
+#closeCart{
+  position:absolute;
+  right:15px;
+  top:10px;
+  font-size:28px;
+  cursor:pointer;
+}
+
+#cartItems{
+  max-height:300px;
+  overflow-y:auto;
+  margin:15px 0;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #ddd;
+  padding:10px 0;
+}
+
+#checkoutBtn{
+  width:100%;
+  background:#ffd814;
+  border:none;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  border-radius:5px;
+}
 
     /* Responsive */
     @media (max-width:1080px) {
@@ -313,9 +382,9 @@
       <strong>Account & Lists</strong>
     </a>
 
-    <a href="#" class="cart" aria-label="Cart">
-      🛒 <span>Cart</span>
-    </a>
+     <a href="#" class="cart" id="cart-btn" aria-label="Cart">
+  🛒 <span id="cart-count">Cart (0)</span>
+  </a>
   </header>
 
     <!-- Nav -->
@@ -522,5 +591,210 @@
       <br />Privacy Policy • Terms of Use • Contact
     </div>
   </footer>
+  <div id="cartModal" class="cart-modal">
+  <div class="cart-content">
+    <span id="closeCart">&times;</span>
+    <h2>Your Cart</h2>
+
+    <div id="cartItems"></div>
+
+    <h3>Total: ₹<span id="cartTotal">0</span></h3>
+
+    <button id="checkoutBtn">Proceed to Checkout</button>
+  </div>
+</div>
+
+
+
+  <!--javascript for cart functionality, search, and other interactions -->
+   <script>
+    function removeItem(index) {
+  cart.splice(index, 1);
+  saveCart();
+  updateCart();
+}
+
+
+// Buy Now Button
+document.querySelectorAll(".btn.secondary").forEach(button => {
+  button.addEventListener("click", function () {
+    const productName =
+      this.closest(".card").querySelector(".title").textContent;
+
+    alert(`Proceeding to checkout:\n${productName}`);
+  });
+});
+
+// Search Products
+const searchInput = document.querySelector(".search input");
+const productCards = document.querySelectorAll(".card");
+
+searchInput.addEventListener("input", function () {
+  const searchText = this.value.toLowerCase();
+
+  productCards.forEach(card => {
+    const title = card
+      .querySelector(".title")
+      .textContent.toLowerCase();
+
+    card.style.display = title.includes(searchText)
+      ? "grid"
+      : "none";
+  });
+});
+
+// Search Form Submit
+document.querySelector(".search").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  if (searchInput.value.trim() === "") {
+    alert("Please enter a product name.");
+  }
+});
+
+// Today's Deals Button
+document.querySelector(".cta").addEventListener("click", function (e) {
+  e.preventDefault();
+
+  document.querySelector(".section-title").scrollIntoView({
+    behavior: "smooth"
+  });
+});
+
+// Dark Mode Toggle
+const darkBtn = document.createElement("button");
+darkBtn.innerText = "🌙 Dark Mode";
+darkBtn.style.position = "fixed";
+darkBtn.style.bottom = "20px";
+darkBtn.style.right = "20px";
+darkBtn.style.padding = "10px";
+darkBtn.style.border = "none";
+darkBtn.style.borderRadius = "5px";
+darkBtn.style.cursor = "pointer";
+document.body.appendChild(darkBtn);
+
+darkBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+
+  if (document.body.classList.contains("dark-mode")) {
+    darkBtn.innerText = "☀️ Light Mode";
+  } else {
+    darkBtn.innerText = "🌙 Dark Mode";
+  }
+});
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+const cartBtn = document.getElementById("cart-btn");
+const cartModal = document.getElementById("cartModal");
+const closeCart = document.getElementById("closeCart");
+const cartItemsContainer = document.getElementById("cartItems");
+const cartTotal = document.getElementById("cartTotal");
+const cartCountElement = document.getElementById("cart-count");
+
+// Add To Cart Buttons
+document.querySelectorAll(".btn:not(.secondary)").forEach(btn => {
+
+  btn.addEventListener("click", function() {
+
+    const card = this.closest(".card");
+
+    const title = card.querySelector(".title").innerText;
+
+    const priceText = card.querySelector(".price").innerText;
+    const price = parseInt(priceText.replace(/[₹,]/g, ""));
+
+    cart.push({
+  title,
+  price
+});
+
+saveCart();
+updateCart();
+
+    alert("Added to cart");
+  });
+
+});
+// Save cart to localStorage
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// Update Cart UI
+function updateCart() {
+
+  cartItemsContainer.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach((item,index) => {
+
+    total += item.price;
+
+    cartItemsContainer.innerHTML += `
+<div class="cart-item">
+  <span>${item.title.substring(0,25)}...</span>
+  <span>
+    ₹${item.price}
+    <button onclick="removeItem(${index})">❌</button>
+  </span>
+</div>
+`;
+  });
+
+  cartTotal.innerText = total;
+
+  cartCountElement.innerText = `Cart (${cart.length})`;
+}
+
+// Open Cart
+cartBtn.addEventListener("click", function(e){
+  e.preventDefault();
+  cartModal.style.display = "block";
+});
+
+// Close Cart
+closeCart.addEventListener("click", function(){
+  cartModal.style.display = "none";
+});
+
+// Checkout Process
+document.getElementById("checkoutBtn").addEventListener("click", function(){
+
+  if(cart.length === 0){
+    alert("Your cart is empty!");
+    return;
+  }
+
+  const total = cart.reduce((sum,item)=>sum + item.price,0);
+
+  const confirmOrder = confirm(
+    `Total Amount: ₹${total}\n\nProceed with checkout?`
+  );
+
+  if(confirmOrder){
+
+    alert(
+      "Order placed successfully!\n\nThank you for shopping with Amazon."
+    );
+
+   cart = [];
+saveCart();
+updateCart();
+
+    cartModal.style.display = "none";
+  }
+
+});
+
+// Close modal when clicking outside
+window.addEventListener("click", function(e){
+  if(e.target === cartModal){
+    cartModal.style.display = "none";
+  }
+});
+updateCart();
+</script>
 </body>
 </html>
